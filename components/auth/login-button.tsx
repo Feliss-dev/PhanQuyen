@@ -8,6 +8,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { LoginForm } from "@/components/auth/login-form";
+import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 
 interface LoginButtonProps {
   children: React.ReactNode;
@@ -23,7 +24,7 @@ export const LoginButton = ({
   const router = useRouter();
 
   const onClick = () => {
-    router.push("/auth/login");
+    router.push(DEFAULT_LOGIN_REDIRECT);
   };
 
   if (mode === "modal") {

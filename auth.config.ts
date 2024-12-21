@@ -1,22 +1,17 @@
 import bcrypt from "bcryptjs";
 import type { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import Github from "next-auth/providers/github";
-import Google from "next-auth/providers/google";
+
 
 import { LoginSchema } from "@/schemas";
-import { getUserByEmail } from "@/data/user";
+import { getUserByEmail, getUserById } from "@/data/user";
+import { UserRole } from "@prisma/client";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { db } from "./lib/db";
 
 export default {
   providers: [
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    }),
-    Github({
-      clientId: process.env.GITHUB_CLIENT_ID,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET,
-    }),
+  
     Credentials({
       async authorize(credentials) {
         const validatedFields = LoginSchema.safeParse(credentials);
@@ -39,4 +34,51 @@ export default {
       }
     })
   ],
+  pages: {
+    signIn: "/auth/login",
+    error: "/auth/error",
+  },
+  
+  callbacks: {
+  
+    async session({ token, session }) {
+      if (token.sub && session.user) {
+        session.user.id = token.sub;
+      }
+
+      if (token.role && session.user) {
+        session.user.role = token.role as UserRole;
+      }
+
+   
+
+      if (session.user) {
+        session.user.name = token.name;
+        session.user.email = token.email;
+        
+       
+      }
+
+      return session;
+    },
+    async jwt({ token }) {
+      if (!token.sub) return token;
+
+      const existingUser = await getUserById(token.sub);
+
+      if (!existingUser) return token;
+
+   
+
+  
+      token.name = existingUser.name;
+      token.email = existingUser.email;
+      token.role = existingUser.role;
+  
+
+      return token;
+    }
+  },
+  adapter: PrismaAdapter(db),
+  session: { strategy: "jwt" },
 } satisfies NextAuthConfig
