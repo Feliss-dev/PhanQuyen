@@ -35,16 +35,7 @@ export async function GET() {
     }
 
     const users = await db.user.findMany();
-    return NextResponse.json(users, { status: 200 });
+    return NextResponse.json({ users }, { status: 200 });
 }
 
-//Xoa nguoi dung
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
-    if (!(await isAdmin())) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-    }
 
-    const id = params.id;
-    await db.user.delete({ where: { id } });
-    return NextResponse.json({ sucess: "User deleted" }, { status: 200 });
-}

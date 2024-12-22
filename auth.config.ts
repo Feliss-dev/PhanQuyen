@@ -48,7 +48,10 @@ export default {
 
       if (token.role && session.user) {
         session.user.role = token.role as UserRole;
+        
       }
+
+     
 
    
 
@@ -74,6 +77,7 @@ export default {
       token.name = existingUser.name;
       token.email = existingUser.email;
       token.role = existingUser.role;
+      
   
 
       return token;
