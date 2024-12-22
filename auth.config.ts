@@ -41,29 +41,7 @@ export default {
   
   callbacks: {
   
-    async session({ token, session }) {
-      if (token.sub && session.user) {
-        session.user.id = token.sub;
-      }
-
-      if (token.role && session.user) {
-        session.user.role = token.role as UserRole;
-        
-      }
-
-     
-
-   
-
-      if (session.user) {
-        session.user.name = token.name;
-        session.user.email = token.email;
-        
-       
-      }
-
-      return session;
-    },
+ 
     async jwt({ token }) {
       if (!token.sub) return token;
 
@@ -74,15 +52,39 @@ export default {
    
 
   
-      token.name = existingUser.name;
-      token.email = existingUser.email;
-      token.role = existingUser.role;
+      const user = await db.user.findUnique({
+        where: { id: token.sub },
+        include: {
+          permissions: {
+            include: {
+              permission: true,
+            },
+          },
+        },
+      });
+
+      if (!user) return token;
+
+      token.name = user.name;
+      token.email = user.email;
+      token.role = user.role;
+      token.permissions = user.permissions.map((p) => p.permission.name); // Lấy danh sách tên quyền
       
   
 
       return token;
-    }
+    },
+    async session({ token, session }) {
+      if (token.sub && session.user) {
+        session.user.id = token.sub;
+        session.user.role = token.role as UserRole; // Thêm role vào session
+        session.user.permissions = token.permissions as string[]; // Thêm permissions vào session
+      }
+
+      return session;
+    },
   },
+
   adapter: PrismaAdapter(db),
   session: { strategy: "jwt" },
 } satisfies NextAuthConfig
