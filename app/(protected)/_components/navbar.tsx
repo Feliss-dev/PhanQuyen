@@ -53,6 +53,13 @@ export const Navbar = () => {
     ],
   };
 
+  const adminOptions = [
+    {title: "Admin Dashboard", href: "/admin"},
+    {title: "Add users", href: "/admin/users"},
+    {title: "Users Management", href: "/admin/users"},
+  
+  ];
+
   return (
     <nav className="sticky inset-x-0 top-0 z-50 bg-slate-50 shadow-sm dark:bg-gray-950/90 border border-gray-200 dark:border-gray-800">
       <div className="w-full max-w-7xl mx-auto px-4">
@@ -92,16 +99,16 @@ export const Navbar = () => {
                   <ChevronDownIcon className="h-3 w-3 mt-1 ml-1"/>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56">
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/admin"
-                      className={cn(
-                        "block w-full rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-gray-200 hover:text-accent-foreground"
-                      )}
-                    >
-                      Admin Dashboard
-                    </Link>
-                  </DropdownMenuItem>
+                  {adminOptions.map((option, index)=> (
+                    <DropdownMenuItem asChild key={index}>
+                      <Link
+                        href={option.href}
+                        className="block w-full rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-gray-200 hover:text-accent-foreground"
+                      >
+                        {option.title}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
                 </DropdownMenuContent>
               </DropdownMenu>
               )}
