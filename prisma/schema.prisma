@@ -21,8 +21,12 @@ model User {
   image         String?
   password      String?
   role          UserRole         @default(USER)
-  accounts      Account[]
   permissions   UserPermission[]
+
+  //New
+  documents    Document[]
+  departmentId String
+  department   Departments @relation(fields: [departmentId], references: [id])
 }
 
 model Permission {
@@ -41,39 +45,62 @@ model UserPermission {
   @@unique([userId, permissionId]) // Đảm bảo một người dùng không thể có quyền trùng lặp
 }
 
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
+model Departments {
+  id        String     @id @default(uuid())
+  name      String
+  users     User[]
+  documents Document[]
 }
 
-model VerificationToken {
-  id      String   @id @default(cuid())
-  email   String
-  token   String   @unique
-  expires DateTime
-
-  @@unique([email, token])
+model Fields {
+  id        String     @id @default(uuid())
+  name      String
+  documents Document[]
 }
 
-model PasswordResetToken {
-  id      String   @id @default(cuid())
-  email   String
-  token   String   @unique
-  expires DateTime
-
-  @@unique([email, token])
+model DocumentTypes {
+  id        String     @id @default(uuid())
+  name      String
+  documents Document[]
 }
+
+model Document {
+  id             String         @id @default(uuid())
+  title          String
+  documentNumber String // So van ban
+  issueDate      DateTime // Ngay ban hanh
+  issuingLevel   String // Cap ban hanh
+  summary        String // Trich yeu - description
+  status         DocumentStatus @default(PRIVATE)
+  user           User           @relation(fields: [userId], references: [id])
+  userId         String
+
+  department     Departments    @relation(fields: [departmentId], references: [id])
+  departmentId   String
+  field          Fields         @relation(fields: [fieldId], references: [id])
+  fieldId        String
+  documentType   DocumentTypes  @relation(fields: [documentTypeId], references: [id])
+  documentTypeId String
+  files          DocumentFile[]
+}
+
+model DocumentFile {
+  id         String   @id @default(uuid())
+  document   Document @relation(fields: [documentId], references: [id])
+  documentId String
+  fileType   FileType
+  filePath   String
+}
+
+enum DocumentStatus {
+  PRIVATE
+  PUBLIC
+}
+
+enum FileType {
+  MAIN
+  ORIGINAL
+}
+
+
+
