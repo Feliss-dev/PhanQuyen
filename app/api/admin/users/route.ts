@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { currentRole } from "@/lib/auth";
 import { UserRole } from "@prisma/client";
-import { error } from "console";
 import { hashPassword } from "@/lib/hash";
 
 async function isAdmin() {
@@ -15,14 +14,17 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
 
     }
-    const { emails } = await req.json();
+    const { emails, departmentId, role } = await req.json();
 
-    if (!emails || !Array.isArray(emails)){
+    if (!emails || !Array.isArray(emails) || !departmentId || !role){
         return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
     const users = await Promise.all(emails.map(async (email: string) => ({
         email,
         password: await hashPassword(`${email}@`),
+        departmentId,
+        role,
+       
     }))
     );
     try {
@@ -51,11 +53,13 @@ export async function GET() {
                     permission: true,
                 },
             },
+            department: true, // Lay thong tin don vi lien ketket
         },
     });
     const formattedUsers = users.map((user) => ({
         ...user,
         permissions: user.permissions.map((p) => p.permission.name),
+        department: user.department.name || "N/A",
     }))
     return NextResponse.json({ formattedUsers }, { status: 200 });
 }

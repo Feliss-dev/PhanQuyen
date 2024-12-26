@@ -95,3 +95,10 @@ Một tài liệu có thể có nhiều file liên quan.
 Mối quan hệ tổng thể
 Hệ thống tập trung vào việc quản lý tài liệu, trong đó tài liệu được liên kết với người dùng, đơn vị/khoa, lĩnh vực, và loại tài liệu.
 Các file tài liệu được lưu trữ riêng biệt và được gắn với từng tài liệu cụ thể.
+\
+
+,
+  "prisma": {
+    "seed": "node --loader ts-node/esm ./prisma/seed.ts"
+  },
+  "type": "module"
