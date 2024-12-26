@@ -55,7 +55,7 @@ export const Navbar = () => {
 
   const adminOptions = [
     {title: "Admin Dashboard", href: "/admin/users"},
-    {title: "Add users", href:"/admin"},
+    {title: "Add users", href:"/admin/users-add"},
     {title: "Users Management", href: "/admin/users"},
   
   ];
