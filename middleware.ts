@@ -2,17 +2,19 @@ import NextAuth from "next-auth";
 
 import authConfig from "@/auth.config";
 import {
-  DEFAULT_LOGIN_REDIRECT,
-  apiAuthPrefix,
-  authRoutes,
-  publicRoutes,
+  DEFAULT_LOGIN_REDIRECT, // Đường dẫn mặc định khi người dùng đã đăng nhập
+  apiAuthPrefix,  // Tiền tố cho các route API liên quan đến xác thực
+  authRoutes, // Danh sách các route yêu cầu người dùng đã đăng nhập
+  publicRoutes, // Danh sách các route công khai không yêu cầu đăng nhập
 } from "@/routes";
 import { UserRole } from "@prisma/client";
 
+// Khởi tạo NextAuth với cấu hình đã được định nghĩa
 const { auth } = NextAuth(authConfig);
 
+// Middleware để kiểm tra trạng thái đăng nhập và quyền người dùng
 export default auth((req) => {
-  const { nextUrl } = req;
+  const { nextUrl } = req;  // Lấy URL hiện tại của request
 
   const isLoggedIn = !!req.auth;
   const userRole = req.auth?.user?.role;
@@ -43,14 +45,16 @@ export default auth((req) => {
     return null;
   }
 
+   // Kiểm tra nếu người dùng chưa đăng nhập và không phải là route công khai
   if (!isLoggedIn && !isPublicRoute) {
     let callbackUrl = nextUrl.pathname;
     if (nextUrl.search) {
       callbackUrl += nextUrl.search;
     }
 
-    const encodedCallbackUrl = encodeURIComponent(callbackUrl);
+    const encodedCallbackUrl = encodeURIComponent(callbackUrl); // Mã hóa URL callback
 
+     // Chuyển hướng đến trang đăng nhập với callbackUrl để quay lại trang ban đầu sau khi đăng nhập
     return Response.redirect(new URL(
       `/auth/login?callbackUrl=${encodedCallbackUrl}`,
       nextUrl

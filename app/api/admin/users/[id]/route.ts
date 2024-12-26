@@ -1,16 +1,14 @@
-import { currentRole } from "@/lib/auth";
+import { checkIsAdmin } from "@/hooks/use-is-admin";
+
 import { db } from "@/lib/db";
-import { UserRole } from "@prisma/client";
+
 import { NextResponse } from "next/server";
 
-async function isAdmin() {
-  const role = await currentRole();
-  return role === UserRole.ADMIN;
-}
+
 export async function GET(req: Request, { params }: { params: { id: string } }) {
   console.log("Fetching user with ID:", params.id); // Debug log
 
-  if (!(await isAdmin())) {
+  if (!(await checkIsAdmin())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
@@ -57,7 +55,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
 //Xoa nguoi dung
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
-  if (!(await isAdmin())) {
+  if (!(await checkIsAdmin())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
