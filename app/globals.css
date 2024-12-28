@@ -3,7 +3,10 @@
 @tailwind utilities;
 
 html,
-body,
+body{
+  font-family: 'Inter', sans-serif;
+}
+
 :root {
   height: 100%;
 }

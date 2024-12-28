@@ -6,7 +6,7 @@ import { Permission, UserRole } from "@prisma/client";
 import { Checkbox } from "@/components/ui/checkbox";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -19,7 +19,7 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { permission } from "process";
+
 
 interface Department {
   id: string;
