@@ -10,6 +10,8 @@ export default function UserDetail({ params }: { params: { id: string } }) {
   const [permissions, setPermissions] = useState([]);
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
 
+  const [department, setDepartment] = useState<string | null>(null);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -18,6 +20,10 @@ export default function UserDetail({ params }: { params: { id: string } }) {
         const userResponse = await fetch(`/api/admin/users/${params.id}`);
 
         const permissionsResponse = await fetch(`/api/admin/users/${params.id}/permissions`);
+
+        const departmentResponse = await fetch(`/api/admin/users/${params.id}/department`);
+
+
 
 
         if (!userResponse.ok) {
@@ -32,8 +38,13 @@ export default function UserDetail({ params }: { params: { id: string } }) {
           throw new Error("Failed to fetch permissions");
         }
 
+        if (!departmentResponse.ok){
+          throw new Error("Failed to fetch department");
+        }
+
         const userData = await userResponse.json();
         const permissionData = await permissionsResponse.json();
+        const departmentData = await departmentResponse.json();
 
         console.log("User data fetched successfully:", userData); // Debug log
         console.log("Permissions fetched successfully:", permissionData); // Debug log
@@ -41,6 +52,7 @@ export default function UserDetail({ params }: { params: { id: string } }) {
         setUser(userData);
         setPermissions(permissionData.permissions);
         setSelectedPermissions(userData.permissions.map((p: any) => p.id));
+        setDepartment(departmentData.department?.name || "No department");
       } catch (err) {
         console.error("Error fetching user:", err);
       } finally {
@@ -84,24 +96,28 @@ export default function UserDetail({ params }: { params: { id: string } }) {
   if (!user) return <p>User not found</p>;
 
   return (
-    <div>
-      <h2 className="text-2xl mb-4">User Details</h2>
-      <p>ID: {user.id}</p>
-      <p>Email: {user.email}</p>
-      <p>Permissions:</p>
-      <div>
-        {permissions.map((permission: any) => (
-          <div key={permission.id}>
-            <label>
+    <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+      <h2 className="text-2xl mb-4 font-semibold">User Details</h2>
+      <div className="mb-4">
+        <p className="text-lg"><strong>ID:</strong> {user.id}</p>
+        <p className="text-lg"><strong>Email:</strong> {user.email}</p>
+        <p className="text-lg"><strong>Department:</strong> {department}</p>
+      </div>
+      <div className="mb-6">
+        <h3 className="text-xl font-medium mb-2">Permissions:</h3>
+        <div className="space-y-3">
+          {permissions.map((permission: any) => (
+            <div key={permission.id} className="flex items-center">
               <input
                 type="checkbox"
                 checked={selectedPermissions.includes(permission.id)}
                 onChange={() => handlePermissionChange(permission.id)}
+                className="mr-2"
               />
-              {permission.name}
-            </label>
-          </div>
-        ))}
+              <label>{permission.name}</label>
+            </div>
+          ))}
+        </div>
       </div>
 
       <button

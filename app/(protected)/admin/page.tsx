@@ -1,7 +1,6 @@
 "use client";
 
 import { admin } from "@/actions/admin";
-import { RoleGate } from "@/components/auth/role-gate";
 import { FormSuccess } from "@/components/form-success";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -9,71 +8,84 @@ import { UserRole } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/dist/server/api-utils";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const AdminPage = () => {
-  const [emails, setEmails] = useState("");
-  const [loading, setLoading] = useState(false);
-  const[success, setSuccess] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [userCount, setUserCount] = useState(0);
+  const [reportCount, setReportCount] = useState(0);
+  const [pendingTasks, setPendingTasks] = useState(0);
 
-  const handleSubmit = async () => {
-    setLoading(true);
-    setError(null);
-    setSuccess(null);
+  // useEffect(() => {
+  //   // Fetch data for the dashboard (e.g., user count, report count)
+  //   const fetchDashboardData = async () => {
+  //     try {
+  //       const userResponse = await admin.getUserCount();
+  //       const reportResponse = await admin.getReportCount();
+  //       const taskResponse = await admin.getPendingTasks();
 
-    try {
-      const response = await fetch("api/admin/users", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({emails: emails.split(",").map((e) => e.trim())
+  //       setUserCount(userResponse.count);
+  //       setReportCount(reportResponse.count);
+  //       setPendingTasks(taskResponse.count);
+  //     } catch (error) {
+  //       toast.error("Failed to fetch dashboard data.");
+  //     }
+  //   };
 
-        }),
-      });
+  //   fetchDashboardData();
+  // }, []);
 
-      const result = await response.json();
-      if(result.error) throw new Error(result.error);
-
-      setSuccess("Users added successfully");
-      setEmails("");
-
-    }catch (err: any) {
-      setError(err.message || "Something went wrong");
-    }finally{
-      setLoading(false);
-    }
-  };
- 
-  
-  
+  // if (!session || session.user.role !== UserRole.ADMIN) {
+  //   // Redirect non-admin users
+  //   redirect("/unauthorized");
+  // }
 
   return (
-    <div>
-      <h2 className="text-2xl mb-4">
-          Bulk User Creation
-      </h2>
-      {/* Sua thanh command thanh dau enter hoac dau cach */}
-      <textarea 
-        className="w-full p-2 border rounded mb-4"
-        rows={5}
-        placeholder="Enter emails separated by commas"
-        value={emails}
-        onChange={(e) => setEmails(e.target.value)}
+    <div className="p-6">
+      <h1 className="text-3xl font-semibold mb-6">Dashboard Quản Lý</h1>
 
-      />
-      <button
-        onClick={handleSubmit}
-        disabled={loading}
-        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-not-allowed"
-      >
-          {loading ? "Adding..." : "Add Users"}
+      {/* Thẻ thông tin tổng quan */}
+      <div className="grid grid-cols-3 gap-6">
+        {/* Số lượng người dùng */}
+        <Card>
+          <CardHeader>
+            <h2 className="text-lg font-semibold">Số lượng người dùng</h2>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl">{userCount}</p>
+            <Button onClick={() => router.push("/admin/users")} className="mt-4">Quản lý người dùng</Button>
+          </CardContent>
+        </Card>
 
-      </button>
-      {success && <p className="text-green-600 mt-2">{success}</p> }
-      {error && <p className="text-red-600 mt-2">{error}</p>}
+        {/* Số lượng báo cáo */}
+        <Card>
+          <CardHeader>
+            <h2 className="text-lg font-semibold">Số lượng báo cáo</h2>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl">{reportCount}</p>
+            <Button onClick={() => router.push("/admin/reports")} className="mt-4">Xem báo cáo</Button>
+          </CardContent>
+        </Card>
 
-    
+        {/* Số lượng tác vụ chờ xử lý */}
+        <Card>
+          <CardHeader>
+            <h2 className="text-lg font-semibold">Tác vụ chờ xử lý</h2>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl">{pendingTasks}</p>
+            <Button onClick={() => router.push("/admin/tasks")} className="mt-4">Xử lý tác vụ</Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Hiển thị thông báo thành công */}
+      <div className="mt-6">
+        <FormSuccess message="Dashboard đã được tải thành công!" />
+      </div>
     </div>
   );
 };

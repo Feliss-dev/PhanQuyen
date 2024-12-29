@@ -15,6 +15,9 @@ export default {
     Credentials({
       async authorize(credentials) {
         const validatedFields = LoginSchema.safeParse(credentials);
+        if (!validatedFields.success) {
+          throw new Error("Invalid input");
+        }
 
         if (validatedFields.success) {
           const { email, password } = validatedFields.data;
@@ -84,6 +87,11 @@ export default {
       return session;
     },
   },
+  jwt: {
+    maxAge:  60 * 15, // 15p
+    
+  },
+  secret: process.env.AUTH_SECRET,
 
   adapter: PrismaAdapter(db),
   session: { strategy: "jwt" },
