@@ -61,24 +61,13 @@ npm i
 
 ```js
 DATABASE_URL=
-DIRECT_URL=
-
-AUTH_SECRET=
-
-GITHUB_CLIENT_ID=
-GITHUB_CLIENT_SECRET=
-
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-
-RESEND_API_KEY=
 
 NEXT_PUBLIC_APP_URL=
 ```
 
 ### Setup Prisma
 ```shell
-npx prisma generate
+npx prisma generate / npx prisma migrate dev
 npx prisma db push
 ```
 
@@ -87,6 +76,25 @@ npx prisma db push
 ```shell
 npm run dev
 ```
+Clone code về +  set up môi trường + npm installinstall
+
+Cách để tạo tài khoản mẫu chạy chương trình
+Sau khi đã cài đặt thành công db việc tiếp theo cần làm seed user
+
+Copy đoạn code này vào cuối file package.json
+
+,
+  "prisma": {
+    "seed": "node --loader ts-node/esm ./prisma/seed.ts"
+  },
+  "type": "module"
+
+Copy đầy đủ cả dấu ','
+
+Chạy npx prisma db seed để thêm tài khoản vào để đăng nhập
+
+Sau khi thêm dữ liệu thành công xóa đoạn code vừa rồi trong package.json đi để tiếp tục run chương trìnhtrình
+
 
 ## Available commands
 
